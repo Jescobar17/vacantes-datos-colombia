@@ -1,0 +1,21 @@
+# Robot que corre la extracción en la nube de GitHub, sin tu PC.
+name: Extraer vacantes
+
+on:
+  schedule:
+    - cron: "17 11 * * *"   # todos los días a las 11:17 UTC = 6:17 a. m. en Colombia
+  workflow_dispatch:         # botón "Run workflow" para correrlo a mano
+
+jobs:
+  extraer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4          # descarga el código del repositorio
+      - uses: actions/setup-python@v5      # instala Python
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python extract/getonbrd.py
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}   # la clave vive en GitHub Secrets, no en el código
